@@ -1,29 +1,58 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Building2, Eye, EyeOff, ArrowRight } from "lucide-react"
-import Link from "next/link"
-import { useRouter } from "next/navigation"
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Building2, Eye, EyeOff, ArrowRight } from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { supabase } from "@/lib/supabase";
 
 export default function IndustryLogin() {
-  const [showPassword, setShowPassword] = useState(false)
+  const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
     password: "",
-  })
-  const router = useRouter()
+  });
+  const router = useRouter();
 
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault()
-    // Simulate login - in real app, validate credentials
-    router.push("/industry/dashboard")
-  }
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+
+    if (!supabase) {
+      setError(
+        "Supabase is not configured. Add the variables from .env.example to .env.local.",
+      );
+      return;
+    }
+
+    setIsLoading(true);
+    const { error: loginError } = await supabase.auth.signInWithPassword({
+      email: formData.email,
+      password: formData.password,
+    });
+    setIsLoading(false);
+
+    if (loginError) {
+      setError(loginError.message);
+      return;
+    }
+
+    router.push("/industry/dashboard");
+  };
 
   return (
     <div className="min-h-screen gradient-bg-secondary flex items-center justify-center p-4">
@@ -34,7 +63,9 @@ export default function IndustryLogin() {
               <Building2 className="w-8 h-8 text-white" />
             </div>
             <div>
-              <CardTitle className="text-2xl font-bold text-white">Industry Login</CardTitle>
+              <CardTitle className="text-2xl font-bold text-white">
+                Industry Login
+              </CardTitle>
               <CardDescription className="text-white/80">
                 Access your company dashboard and manage internships
               </CardDescription>
@@ -43,6 +74,11 @@ export default function IndustryLogin() {
 
           <CardContent className="space-y-6">
             <form onSubmit={handleLogin} className="space-y-4">
+              {error && (
+                <p className="text-sm text-red-300" role="alert">
+                  {error}
+                </p>
+              )}
               <div className="space-y-2">
                 <Label htmlFor="email" className="text-white/90">
                   Company Email
@@ -52,7 +88,9 @@ export default function IndustryLogin() {
                   type="email"
                   placeholder="Enter company email"
                   value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, email: e.target.value })
+                  }
                   className="bg-white/10 border-white/20 text-white placeholder:text-white/60 focus:border-white/40"
                   required
                 />
@@ -68,7 +106,9 @@ export default function IndustryLogin() {
                     type={showPassword ? "text" : "password"}
                     placeholder="Enter your password"
                     value={formData.password}
-                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, password: e.target.value })
+                    }
                     className="bg-white/10 border-white/20 text-white placeholder:text-white/60 focus:border-white/40 pr-10"
                     required
                   />
@@ -79,24 +119,37 @@ export default function IndustryLogin() {
                     className="absolute right-0 top-0 h-full px-3 text-white/60 hover:text-white hover:bg-transparent"
                     onClick={() => setShowPassword(!showPassword)}
                   >
-                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    {showPassword ? (
+                      <EyeOff className="w-4 h-4" />
+                    ) : (
+                      <Eye className="w-4 h-4" />
+                    )}
                   </Button>
                 </div>
               </div>
 
-              <Button type="submit" className="w-full bg-white text-primary hover:bg-white/90 font-semibold py-6">
-                Sign In
+              <Button
+                type="submit"
+                disabled={isLoading}
+                className="w-full bg-white text-primary hover:bg-white/90 font-semibold py-6"
+              >
+                {isLoading ? "Signing In..." : "Sign In"}
                 <ArrowRight className="ml-2 w-4 h-4" />
               </Button>
             </form>
 
             <div className="text-center space-y-4">
-              <Link href="/forgot-password" className="text-white/80 hover:text-white text-sm transition-colors">
+              <Link
+                href="/forgot-password"
+                className="text-white/80 hover:text-white text-sm transition-colors"
+              >
                 Forgot your password?
               </Link>
 
               <div className="border-t border-white/20 pt-4">
-                <p className="text-white/80 text-sm mb-3">Don't have an account?</p>
+                <p className="text-white/80 text-sm mb-3">
+                  Don't have an account?
+                </p>
                 <Link href="/industry">
                   <Button
                     variant="outline"
@@ -111,5 +164,5 @@ export default function IndustryLogin() {
         </Card>
       </div>
     </div>
-  )
+  );
 }
