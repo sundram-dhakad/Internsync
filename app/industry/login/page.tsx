@@ -2,7 +2,7 @@
 
 import type React from "react";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -17,6 +17,7 @@ import { Building2, Eye, EyeOff, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
+import { getDashboardPath } from "@/lib/auth-redirect";
 
 export default function IndustryLogin() {
   const [showPassword, setShowPassword] = useState(false);
@@ -27,6 +28,12 @@ export default function IndustryLogin() {
     password: "",
   });
   const router = useRouter();
+
+  useEffect(() => {
+    void getDashboardPath().then((path) => {
+      if (path) router.replace(path);
+    });
+  }, [router]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -51,7 +58,8 @@ export default function IndustryLogin() {
       return;
     }
 
-    router.push("/industry/dashboard");
+    const dashboardPath = await getDashboardPath();
+    router.push(dashboardPath ?? "/industry/dashboard");
   };
 
   return (

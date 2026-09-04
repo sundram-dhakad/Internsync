@@ -1,7 +1,7 @@
 "use client"
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
+import { useEffect, useState } from "react"
+import { useRouter, useSearchParams } from "next/navigation"
 import { Building2, FileText, Upload } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -25,10 +25,40 @@ const companySizes = [
 
 export default function IndustryPortal() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const isEditMode = searchParams.get("mode") === "edit"
   const [companySector, setCompanySector] = useState("")
   const [companySize, setCompanySize] = useState("")
   const [registrationStatus, setRegistrationStatus] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
+
+  useEffect(() => {
+    if (!isEditMode || !supabase) return
+    const client = supabase
+    void client.auth.getSession().then(async ({ data: sessionData }) => {
+      const user = sessionData.session?.user
+      if (!user) return router.replace("/industry/login")
+      const { data: company } = await client.from("companies").select("*").eq("id", user.id).maybeSingle()
+      if (!company) return
+      const values: Record<string, string> = {
+        companyName: company.name ?? "",
+        registrationNumber: company.registration_number ?? "",
+        companyDescription: company.description ?? "",
+        website: company.website ?? "",
+        contactName: company.contact_name ?? "",
+        designation: company.designation ?? "",
+        contactEmail: company.contact_email ?? user.email ?? "",
+        contactPhone: company.contact_phone ?? "",
+        officeAddress: company.office_address ?? "",
+      }
+      Object.entries(values).forEach(([id, value]) => {
+        const input = document.getElementById(id) as HTMLInputElement | HTMLTextAreaElement | null
+        if (input) input.value = value
+      })
+      setCompanySector(company.sector ?? "")
+      setCompanySize(company.company_size ?? "")
+    })
+  }, [isEditMode, router])
 
   const getInputValue = (id: string) =>
     (document.getElementById(id) as HTMLInputElement | HTMLTextAreaElement | null)?.value.trim() ?? ""
@@ -48,8 +78,8 @@ export default function IndustryPortal() {
     const missingFields = [
       !companyName && "Company Name",
       !contactEmail && "Contact Email",
-      !sessionData.session && !password && "Account Password",
-      !sessionData.session && !confirmPassword && "Confirm Password",
+      !sessionData.session && !isEditMode && !password && "Account Password",
+      !sessionData.session && !isEditMode && !confirmPassword && "Confirm Password",
       !companySector && "Industry Sector",
     ].filter(Boolean) as string[]
 
@@ -58,7 +88,7 @@ export default function IndustryPortal() {
       return
     }
 
-    if (!sessionData.session && password !== confirmPassword) {
+    if (!sessionData.session && !isEditMode && password !== confirmPassword) {
       setRegistrationStatus("Passwords do not match.")
       return
     }
@@ -151,8 +181,10 @@ export default function IndustryPortal() {
                     <div className="space-y-2"><Label htmlFor="designation" className="text-white">Designation</Label><Input id="designation" placeholder="e.g., HR Manager" className="bg-white/10 border-white/30 text-white placeholder:text-white/50" /></div>
                     <div className="space-y-2"><Label htmlFor="contactEmail" className="text-white">Email Address *</Label><Input id="contactEmail" type="email" placeholder="hr@yourcompany.com" className="bg-white/10 border-white/30 text-white placeholder:text-white/50" /></div>
                     <div className="space-y-2"><Label htmlFor="contactPhone" className="text-white">Phone Number</Label><Input id="contactPhone" placeholder="+91 98765 43210" className="bg-white/10 border-white/30 text-white placeholder:text-white/50" /></div>
-                    <div className="space-y-2"><Label htmlFor="companyPassword" className="text-white">Account Password *</Label><Input id="companyPassword" type="password" minLength={6} placeholder="Create a password" className="bg-white/10 border-white/30 text-white placeholder:text-white/50" /></div>
-                    <div className="space-y-2"><Label htmlFor="confirmCompanyPassword" className="text-white">Confirm Password *</Label><Input id="confirmCompanyPassword" type="password" minLength={6} placeholder="Confirm your password" className="bg-white/10 border-white/30 text-white placeholder:text-white/50" /></div>
+                    {!isEditMode && <>
+                      <div className="space-y-2"><Label htmlFor="companyPassword" className="text-white">Account Password *</Label><Input id="companyPassword" type="password" minLength={6} placeholder="Create a password" className="bg-white/10 border-white/30 text-white placeholder:text-white/50" /></div>
+                      <div className="space-y-2"><Label htmlFor="confirmCompanyPassword" className="text-white">Confirm Password *</Label><Input id="confirmCompanyPassword" type="password" minLength={6} placeholder="Confirm your password" className="bg-white/10 border-white/30 text-white placeholder:text-white/50" /></div>
+                    </>}
                   </div>
                   <div className="space-y-2"><Label htmlFor="officeAddress" className="text-white">Office Address</Label><Textarea id="officeAddress" placeholder="Complete office address" className="bg-white/10 border-white/30 text-white placeholder:text-white/50" /></div>
                 </CardContent>

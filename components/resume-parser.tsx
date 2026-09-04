@@ -34,6 +34,87 @@ interface ResumeParserProps {
   onDataParsed: (data: ParsedResumeData) => void
 }
 
+const knownSkills = [
+  "JavaScript", "TypeScript", "React", "Next.js", "Node.js", "Python", "Java", "C++", "C#",
+  "SQL", "MongoDB", "PostgreSQL", "AWS", "Docker", "Git", "HTML", "CSS", "Machine Learning",
+  "Data Analysis", "Data Structures", "Algorithms", "Figma", "Excel", "Tableau",
+]
+
+async function extractResumeText(file: File, onProgress: (progress: number) => void) {
+  onProgress(20)
+  if (file.type === "application/pdf") {
+    const pdfjs = await import("pdfjs-dist/legacy/build/pdf.mjs")
+    pdfjs.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjs.version}/legacy/build/pdf.worker.min.mjs`
+    const document = await pdfjs.getDocument({ data: new Uint8Array(await file.arrayBuffer()) }).promise
+    const pages: string[] = []
+    for (let pageNumber = 1; pageNumber <= document.numPages; pageNumber += 1) {
+      const page = await document.getPage(pageNumber)
+      const content = await page.getTextContent()
+      pages.push(content.items.map((item) => ("str" in item ? item.str : "")).join(" "))
+      onProgress(20 + Math.round((pageNumber / document.numPages) * 70))
+    }
+    return pages.join("\n")
+  }
+
+  if (file.type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document") {
+    const mammoth = await import("mammoth")
+    const result = await mammoth.extractRawText({ arrayBuffer: await file.arrayBuffer() })
+    onProgress(90)
+    return result.value
+  }
+
+  throw new Error("Legacy .doc files are not supported for local extraction. Please upload PDF or DOCX.")
+}
+
+function parseResumeText(text: string): ParsedResumeData {
+  const lines = text.split(/\r?\n|(?<=\.)\s{2,}/).map((line) => line.trim()).filter(Boolean)
+  const email = text.match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i)?.[0] ?? ""
+  const phone = text.match(/(?:\+?\d[\d\s().-]{8,}\d)/)?.[0]?.trim() ?? ""
+  const nameLine = lines.find((line) => /^[A-Za-z]+(?:\s+[A-Za-z.'-]+){1,3}$/.test(line) && !/resume|curriculum vitae/i.test(line)) ?? ""
+  const nameParts = nameLine.split(/\s+/)
+  const headings = /skills|technical skills|technologies/i
+  const skillsLine = lines.find((line) => headings.test(line)) ?? ""
+  const skillText = skillsLine.includes(":") ? skillsLine.slice(skillsLine.indexOf(":") + 1) : text
+  const skills = knownSkills.filter((skill) => new RegExp(`(^|[^A-Za-z])${skill.replace(/[.+#]/g, "\\$&")}(?=$|[^A-Za-z])`, "i").test(skillText))
+  const year = text.match(/(?:19|20)\d{2}/)?.[0] ?? ""
+  const degree = lines.find((line) => /b\.?tech|bachelor|master|m\.?tech|phd|degree|diploma/i.test(line)) ?? ""
+  const university = lines.find((line) => /university|institute|college|school of/i.test(line)) ?? ""
+  const location = lines.find((line) => /,\s*[A-Za-z]{2,}(?:\s+\d{5,6})?$/.test(line)) ?? ""
+
+  return {
+    personalInfo: {
+      firstName: nameParts[0] ?? "",
+      lastName: nameParts.slice(1).join(" "),
+      email,
+      phone,
+      address: location,
+      city: location.split(",")[0]?.trim() ?? "",
+      state: location.split(",")[1]?.trim().replace(/\s+\d{5,6}$/, "") ?? "",
+      pincode: location.match(/\b\d{5,6}\b/)?.[0] ?? "",
+    },
+    education: { university, degree, gpa: text.match(/(?:GPA|CGPA|percentage)\s*[:\-]?\s*([\d.]+%?)/i)?.[1] ?? "", graduationYear: year },
+    skills,
+    experience: lines.filter((line) => /experience|intern|developer|engineer/i.test(line)).slice(0, 5),
+  }
+}
+
+async function parseResumeWithAi(text: string): Promise<ParsedResumeData> {
+  const response = await fetch("/api/parse-resume", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ text }),
+  })
+
+  const result = await response.json().catch(() => null)
+  if (!response.ok) {
+    const error = new Error(result?.error ?? "Unable to parse resume with the AI agent") as Error & { status?: number }
+    error.status = response.status
+    throw error
+  }
+
+  return result as ParsedResumeData
+}
+
 export function ResumeParser({ onDataParsed }: ResumeParserProps) {
   const [isUploading, setIsUploading] = useState(false)
   const [isParsing, setIsParsing] = useState(false)
@@ -87,55 +168,27 @@ export function ResumeParser({ onDataParsed }: ResumeParserProps) {
   const parseResume = async (file: File) => {
     setIsParsing(true)
     setParseProgress(0)
-
-    // Simulate AI parsing process
-    const parseInterval = setInterval(() => {
-      setParseProgress((prev) => {
-        if (prev >= 100) {
-          clearInterval(parseInterval)
-          setIsParsing(false)
-
-          // Simulate parsed data (in real implementation, this would come from AI service)
-          const mockParsedData: ParsedResumeData = {
-            personalInfo: {
-              firstName: "Priya",
-              lastName: "Sharma",
-              email: "priya.sharma@email.com",
-              phone: "+91 98765 43210",
-              address: "123 Tech Street, Sector 15",
-              city: "Gurgaon",
-              state: "Haryana",
-              pincode: "122001",
-            },
-            education: {
-              university: "Indian Institute of Technology Delhi",
-              degree: "B.Tech Computer Science and Engineering",
-              gpa: "8.9 CGPA",
-              graduationYear: "2025",
-            },
-            skills: [
-              "Python",
-              "JavaScript",
-              "React",
-              "Node.js",
-              "Machine Learning",
-              "Data Structures",
-              "Algorithms",
-              "Git",
-            ],
-            experience: [
-              "Software Development Intern at TechCorp (Summer 2023)",
-              "Web Development Project - E-commerce Platform",
-            ],
-          }
-
-          setParsedData(mockParsedData)
-          setParseComplete(true)
-          return 100
+    try {
+      const text = await extractResumeText(file, (progress) => setParseProgress(progress))
+      let extractedData: ParsedResumeData
+      try {
+        extractedData = await parseResumeWithAi(text)
+      } catch (error) {
+        if (error instanceof Error && (error as Error & { status?: number }).status === 503) {
+          extractedData = parseResumeText(text)
+        } else {
+          throw error
         }
-        return prev + Math.random() * 15
-      })
-    }, 300)
+      }
+      setParsedData(extractedData)
+      setParseComplete(true)
+    } catch (error) {
+      setParseError(error instanceof Error ? error.message : "Unable to extract information from this resume")
+      setUploadedFile(null)
+    } finally {
+      setIsParsing(false)
+      setParseProgress(100)
+    }
   }
 
   const handleAcceptData = () => {

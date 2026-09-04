@@ -1,6 +1,11 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+div[data-state="active"]:has(+ div[data-state="active"]) {
+  display: none;
+}
+
+
 @custom-variant dark (&:is(.dark *));
 
 :root {

@@ -1,12 +1,33 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Menu, X, GraduationCap, Building2 } from "lucide-react";
+import { Menu, X, GraduationCap, Building2, UserCircle } from "lucide-react";
+import { supabase } from "@/lib/supabase";
+import { getDashboardPath } from "@/lib/auth-redirect";
 
 export function Navigation() {
   const [isOpen, setIsOpen] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [dashboardPath, setDashboardPath] = useState<string | null>(null);
+  const pathname = usePathname();
+  const showPortalLinks = pathname === "/" && !isLoggedIn;
+
+  useEffect(() => {
+    if (!supabase) return;
+    const updateSession = async () => {
+      const path = await getDashboardPath();
+      setDashboardPath(path);
+      setIsLoggedIn(Boolean(path));
+    };
+    void updateSession();
+    const { data: listener } = supabase.auth.onAuthStateChange(() => {
+      void updateSession();
+    });
+    return () => listener.subscription.unsubscribe();
+  }, []);
 
   const navItems = [
     { href: "/student/login", label: "Student Portal", icon: GraduationCap },
@@ -29,7 +50,7 @@ export function Navigation() {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-4">
-            {navItems.map((item) => (
+            {showPortalLinks && navItems.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
@@ -39,6 +60,23 @@ export function Navigation() {
                 <span>{item.label}</span>
               </Link>
             ))}
+            {isLoggedIn && (
+              <>
+                <Link
+                  href={dashboardPath ?? "/"}
+                  className="flex items-center space-x-1 text-white hover:text-blue-200 transition-colors duration-200 text-xs"
+                >
+                  <span>Dashboard</span>
+                </Link>
+                <Link
+                  href="/profile"
+                  className="flex items-center space-x-1 text-white hover:text-blue-200 transition-colors duration-200 text-xs"
+                >
+                  <UserCircle className="w-3 h-3" />
+                  <span>Profile</span>
+                </Link>
+              </>
+            )}
           </div>
 
           {/* Mobile menu button */}
@@ -59,10 +97,10 @@ export function Navigation() {
         </div>
 
         {/* Mobile Navigation */}
-        {isOpen && (
+        {isOpen && (showPortalLinks || isLoggedIn) && (
           <div className="md:hidden bg-black/40 backdrop-blur-md rounded-lg mt-1 p-2 border border-white/20">
             <div className="space-y-2">
-              {navItems.map((item) => (
+              {showPortalLinks && navItems.map((item) => (
                 <Link
                   key={item.href}
                   href={item.href}
@@ -73,6 +111,25 @@ export function Navigation() {
                   <span>{item.label}</span>
                 </Link>
               ))}
+              {isLoggedIn && (
+                <>
+                  <Link
+                    href={dashboardPath ?? "/"}
+                    className="flex items-center space-x-2 text-white hover:text-blue-200 transition-colors duration-200 text-xs"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    <span>Dashboard</span>
+                  </Link>
+                  <Link
+                    href="/profile"
+                    className="flex items-center space-x-2 text-white hover:text-blue-200 transition-colors duration-200 text-xs"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    <UserCircle className="w-3 h-3" />
+                    <span>Profile</span>
+                  </Link>
+                </>
+              )}
             </div>
           </div>
         )}

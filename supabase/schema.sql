@@ -104,6 +104,7 @@ drop policy if exists "Users can update their profile" on public.profiles;
 drop policy if exists "Students manage their profile" on public.student_profiles;
 drop policy if exists "Students manage their education" on public.education;
 drop policy if exists "Companies manage their profile" on public.companies;
+drop policy if exists "Anyone can view company summaries" on public.companies;
 drop policy if exists "Anyone can view active internships" on public.internships;
 drop policy if exists "Companies manage their internships" on public.internships;
 drop policy if exists "Companies update their internships" on public.internships;
@@ -126,6 +127,8 @@ create policy "Students manage their education" on public.education
   for all using (auth.uid() = student_id) with check (auth.uid() = student_id);
 create policy "Companies manage their profile" on public.companies
   for all using (auth.uid() = id) with check (auth.uid() = id);
+create policy "Anyone can view company summaries" on public.companies
+  for select using (true);
 create policy "Anyone can view active internships" on public.internships
   for select using (status = 'Active' or auth.uid() = company_id);
 create policy "Companies manage their internships" on public.internships

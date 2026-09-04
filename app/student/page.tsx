@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -25,10 +25,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { User, GraduationCap, MapPin, Briefcase, Plus, X } from "lucide-react";
 import { ResumeParser } from "@/components/resume-parser";
 import { supabase } from "@/lib/supabase";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 export default function StudentPortal() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const [isEditMode, setIsEditMode] = useState(
+    searchParams.get("mode") === "edit",
+  );
   const [activeTab, setActiveTab] = useState("register");
   const [registrationStatus, setRegistrationStatus] = useState<string | null>(
     null,
@@ -60,6 +64,58 @@ export default function StudentPortal() {
     previousParticipation: false,
     additionalInfo: "",
   });
+
+  useEffect(() => {
+    if (searchParams.get("mode") === "edit" || !supabase) return;
+    void supabase.auth.getSession().then(({ data }) => {
+      if (data.session) setIsEditMode(true);
+    });
+  }, [searchParams]);
+
+  useEffect(() => {
+    if (!isEditMode || !supabase) return;
+    const client = supabase;
+    const loadProfile = async () => {
+      const { data: sessionData } = await client.auth.getSession();
+      const user = sessionData.session?.user;
+      if (!user) {
+        router.push("/student/login");
+        return;
+      }
+      const [{ data: profile }, { data: education }] = await Promise.all([
+        client.from("student_profiles").select("*").eq("id", user.id).maybeSingle(),
+        client.from("education").select("university, degree, gpa, graduation_year").eq("student_id", user.id).order("id"),
+      ]);
+      if (profile) {
+        setFormData((previous) => ({
+          ...previous,
+          firstName: profile.first_name ?? "",
+          lastName: profile.last_name ?? "",
+          email: user.email ?? "",
+          phone: profile.phone ?? "",
+          dateOfBirth: profile.date_of_birth ?? "",
+          gender: profile.gender ?? "",
+          address: profile.address ?? "",
+          city: profile.city ?? "",
+          state: profile.state ?? "",
+          pincode: profile.pincode ?? "",
+          previousParticipation: profile.previous_participation ?? false,
+          additionalInfo: profile.additional_info ?? "",
+        }));
+        setSkills(profile.skills ?? []);
+        setPreferences({ locations: profile.preferred_locations ?? [], sectors: profile.preferred_sectors ?? [] });
+      }
+      if (education?.length) {
+        setCourses(education.map((course) => ({
+          university: course.university ?? "",
+          degree: course.degree ?? "",
+          gpa: course.gpa ?? "",
+          graduationYear: course.graduation_year?.toString() ?? "",
+        })));
+      }
+    };
+    void loadProfile();
+  }, [isEditMode, router]);
 
   const handleResumeDataParsed = (parsedData: any) => {
     setFormData((prev) => ({
@@ -162,26 +218,82 @@ export default function StudentPortal() {
       return;
     }
 
-    if (
-      !formData.firstName ||
-      !formData.lastName ||
-      !formData.email ||
-      !formData.password
-    ) {
-      setRegistrationStatus(
-        "Please complete your name, email, and password before registering.",
-      );
+    const missingFields = [
+      !formData.firstName && "First Name",
+      !formData.lastName && "Last Name",
+      !formData.email && "Email Address",
+      !isEditMode && !formData.password && "Password",
+      !isEditMode && !formData.confirmPassword && "Confirm Password",
+    ].filter(Boolean) as string[];
+    if (missingFields.length) {
+      setRegistrationStatus(`Required fields missing: ${missingFields.join(", ")}.`);
       setActiveTab("register");
       return;
     }
 
-    if (formData.password !== formData.confirmPassword) {
+    if (!isEditMode && formData.password !== formData.confirmPassword) {
       setRegistrationStatus("Passwords do not match.");
       setActiveTab("register");
       return;
     }
 
     setIsRegistering(true);
+    if (isEditMode) {
+      const { data: sessionData } = await supabase.auth.getSession();
+      const user = sessionData.session?.user;
+      if (!user) {
+        setIsRegistering(false);
+        router.push("/student/login");
+        return;
+      }
+      const { error: profileError } = await supabase.from("profiles").upsert({
+        id: user.id,
+        role: "student",
+        full_name: `${formData.firstName} ${formData.lastName}`,
+      });
+      const { error: studentError } = await supabase.from("student_profiles").upsert({
+        id: user.id,
+        first_name: formData.firstName,
+        last_name: formData.lastName,
+        phone: formData.phone || null,
+        date_of_birth: formData.dateOfBirth || null,
+        gender: formData.gender || null,
+        address: formData.address || null,
+        city: formData.city || null,
+        state: formData.state || null,
+        pincode: formData.pincode || null,
+        previous_participation: formData.previousParticipation,
+        additional_info: formData.additionalInfo || null,
+        skills,
+        preferred_locations: preferences.locations,
+        preferred_sectors: preferences.sectors,
+      });
+      if (profileError || studentError) {
+        setIsRegistering(false);
+        setRegistrationStatus(profileError?.message ?? studentError?.message ?? "Unable to save your profile.");
+        return;
+      }
+      const { error: educationDeleteError } = await supabase.from("education").delete().eq("student_id", user.id);
+      const educationRows = courses.filter((course) => course.university && course.degree).map((course) => ({
+        student_id: user.id,
+        university: course.university,
+        degree: course.degree,
+        gpa: course.gpa || null,
+        graduation_year: course.graduationYear ? Number(course.graduationYear) : null,
+      }));
+      const { error: educationInsertError } = educationRows.length
+        ? await supabase.from("education").insert(educationRows)
+        : { error: null };
+      setIsRegistering(false);
+      const editError = profileError ?? studentError ?? educationDeleteError ?? educationInsertError;
+      if (editError) {
+        setRegistrationStatus(editError.message);
+        return;
+      }
+      router.push("/student/dashboard");
+      return;
+    }
+
     const { data, error: signUpError } = await supabase.auth.signUp({
       email: formData.email,
       password: formData.password,
@@ -204,12 +316,13 @@ export default function StudentPortal() {
     if (!data.session) {
       setIsRegistering(false);
       setRegistrationStatus(
-        "Account created. Check your email to confirm your account, then sign in.",
+        "Account created, but your profile is not saved yet. Confirm your email, then sign in to finish saving your profile.",
       );
+      router.push("/student/login");
       return;
     }
 
-    const { error: profileError } = await supabase.from("profiles").insert({
+    const { error: profileError } = await supabase.from("profiles").upsert({
       id: data.user.id,
       role: "student",
       full_name: `${formData.firstName} ${formData.lastName}`,
@@ -217,7 +330,7 @@ export default function StudentPortal() {
 
     const { error: studentError } = await supabase
       .from("student_profiles")
-      .insert({
+      .upsert({
         id: data.user.id,
         first_name: formData.firstName,
         last_name: formData.lastName,
@@ -234,6 +347,12 @@ export default function StudentPortal() {
         preferred_locations: preferences.locations,
         preferred_sectors: preferences.sectors,
       });
+
+    if (profileError || studentError) {
+      setIsRegistering(false);
+      setRegistrationStatus(profileError?.message ?? studentError?.message ?? "Unable to save your profile.");
+      return;
+    }
 
     const educationRows = courses
       .filter((course) => course.university && course.degree)
@@ -312,10 +431,12 @@ export default function StudentPortal() {
           <Card className="glass-card border-white/20 shadow-2xl">
             <CardHeader className="text-center">
               <CardTitle className="text-2xl text-white">
-                Join the Platform
+                {isEditMode ? "Edit Profile" : "Join the Platform"}
               </CardTitle>
               <CardDescription className="text-white/80">
-                Complete your registration to start your internship journey
+                {isEditMode
+                  ? "Update your saved profile information"
+                  : "Complete your registration to start your internship journey"}
               </CardDescription>
             </CardHeader>
 
@@ -356,7 +477,7 @@ export default function StudentPortal() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2">
                       <Label htmlFor="firstName" className="text-white">
-                        First Name
+                        First Name <span className="text-red-300">*</span>
                       </Label>
                       <Input
                         id="firstName"
@@ -373,7 +494,7 @@ export default function StudentPortal() {
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="lastName" className="text-white">
-                        Last Name
+                        Last Name <span className="text-red-300">*</span>
                       </Label>
                       <Input
                         id="lastName"
@@ -390,7 +511,7 @@ export default function StudentPortal() {
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="email" className="text-white">
-                        Email Address
+                        Email Address <span className="text-red-300">*</span>
                       </Label>
                       <Input
                         id="email"
@@ -406,44 +527,48 @@ export default function StudentPortal() {
                         className="bg-white/10 border-white/30 text-white placeholder:text-white/50"
                       />
                     </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="password" className="text-white">
-                        Password
-                      </Label>
-                      <Input
-                        id="password"
-                        type="password"
-                        value={formData.password}
-                        onChange={(e) =>
-                          setFormData((prev) => ({
-                            ...prev,
-                            password: e.target.value,
-                          }))
-                        }
-                        placeholder="Create a password"
-                        minLength={6}
-                        className="bg-white/10 border-white/30 text-white placeholder:text-white/50"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="confirmPassword" className="text-white">
-                        Confirm Password
-                      </Label>
-                      <Input
-                        id="confirmPassword"
-                        type="password"
-                        value={formData.confirmPassword}
-                        onChange={(e) =>
-                          setFormData((prev) => ({
-                            ...prev,
-                            confirmPassword: e.target.value,
-                          }))
-                        }
-                        placeholder="Confirm your password"
-                        minLength={6}
-                        className="bg-white/10 border-white/30 text-white placeholder:text-white/50"
-                      />
-                    </div>
+                    {!isEditMode && (
+                      <>
+                        <div className="space-y-2">
+                          <Label htmlFor="password" className="text-white">
+                            Password <span className="text-red-300">*</span>
+                          </Label>
+                          <Input
+                            id="password"
+                            type="password"
+                            value={formData.password}
+                            onChange={(e) =>
+                              setFormData((prev) => ({
+                                ...prev,
+                                password: e.target.value,
+                              }))
+                            }
+                            placeholder="Create a password"
+                            minLength={6}
+                            className="bg-white/10 border-white/30 text-white placeholder:text-white/50"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="confirmPassword" className="text-white">
+                            Confirm Password <span className="text-red-300">*</span>
+                          </Label>
+                          <Input
+                            id="confirmPassword"
+                            type="password"
+                            value={formData.confirmPassword}
+                            onChange={(e) =>
+                              setFormData((prev) => ({
+                                ...prev,
+                                confirmPassword: e.target.value,
+                              }))
+                            }
+                            placeholder="Confirm your password"
+                            minLength={6}
+                            className="bg-white/10 border-white/30 text-white placeholder:text-white/50"
+                          />
+                        </div>
+                      </>
+                    )}
                     <div className="space-y-2">
                       <Label htmlFor="phone" className="text-white">
                         Phone Number
@@ -897,6 +1022,7 @@ export default function StudentPortal() {
               )}
               <div className="flex justify-between mt-8">
                 <Button
+                  type="button"
                   variant="outline"
                   onClick={() => {
                     const tabs = ["register", "academic", "preferences"];
@@ -911,16 +1037,20 @@ export default function StudentPortal() {
 
                 {activeTab === "preferences" ? (
                   <Button
+                    type="button"
                     onClick={handleRegistration}
                     disabled={isRegistering}
                     className="bg-white text-primary hover:bg-white/90 px-8"
                   >
                     {isRegistering
                       ? "Creating Account..."
-                      : "Complete Registration"}
+                      : isEditMode
+                        ? "Save Profile"
+                        : "Complete Registration"}
                   </Button>
                 ) : (
                   <Button
+                    type="button"
                     onClick={() => {
                       const tabs = ["register", "academic", "preferences"];
                       const currentIndex = tabs.indexOf(activeTab);
