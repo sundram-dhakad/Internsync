@@ -1,13 +1,12 @@
-# Internsync
+# InternSync
 
-Internsync is a Next.js platform for connecting students with internship opportunities and helping organizations manage internship listings and candidates.
+InternSync is a Next.js platform for connecting students with internship opportunities and helping organizations manage internship listings and candidates.
 
 ## Features
 
 - Student and industry portals
 - Internship discovery and matching workflows
 - Resume parsing and auto-fill support
-- Academic Bank of Credits (ABC ID) integration UI
 - Admin dashboard
 - Responsive interface built with reusable components
 
@@ -71,7 +70,7 @@ styles/       Additional styles
 
 ## Project Status
 
-Internsync is an active project being developed for an internship matching platform. Backend services, authentication, and production data integrations may be added as development continues.
+InternSync is an active project being developed for an internship matching platform. Authentication is now connected to Supabase, with additional backend workflows being added as development continues.
 
 ## License
 

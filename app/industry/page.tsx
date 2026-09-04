@@ -1,33 +1,55 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Badge } from "@/components/ui/badge"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Building2, Users, Briefcase, Plus, X, Upload, FileText } from "lucide-react"
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Building2,
+  Users,
+  Briefcase,
+  Plus,
+  X,
+  Upload,
+  FileText,
+} from "lucide-react";
 
 export default function IndustryPortal() {
-  const [activeTab, setActiveTab] = useState("register")
-  const [requiredSkills, setRequiredSkills] = useState<string[]>([])
-  const [newSkill, setNewSkill] = useState("")
-  const [internshipCapacity, setInternshipCapacity] = useState(1)
+  const [activeTab, setActiveTab] = useState("register");
+  const [requiredSkills, setRequiredSkills] = useState<string[]>([]);
+  const [newSkill, setNewSkill] = useState("");
+  const [internshipCapacity, setInternshipCapacity] = useState(1);
 
   const addSkill = () => {
     if (newSkill.trim() && !requiredSkills.includes(newSkill.trim())) {
-      setRequiredSkills([...requiredSkills, newSkill.trim()])
-      setNewSkill("")
+      setRequiredSkills([...requiredSkills, newSkill.trim()]);
+      setNewSkill("");
     }
-  }
+  };
 
   const removeSkill = (skillToRemove: string) => {
-    setRequiredSkills(requiredSkills.filter((skill) => skill !== skillToRemove))
-  }
+    setRequiredSkills(
+      requiredSkills.filter((skill) => skill !== skillToRemove),
+    );
+  };
 
   const sectors = [
     "Information Technology",
@@ -42,7 +64,7 @@ export default function IndustryPortal() {
     "Agriculture",
     "Media & Entertainment",
     "Government",
-  ]
+  ];
 
   const locations = [
     "Mumbai",
@@ -57,7 +79,7 @@ export default function IndustryPortal() {
     "Lucknow",
     "Kanpur",
     "Nagpur",
-  ]
+  ];
 
   return (
     <div className="min-h-screen pt-20 gradient-bg-secondary">
@@ -65,23 +87,32 @@ export default function IndustryPortal() {
         <div className="max-w-4xl mx-auto">
           {/* Header */}
           <div className="text-center mb-8">
-            <h1 className="text-4xl font-bold text-white mb-4">Industry Partner Portal</h1>
+            <h1 className="text-4xl font-bold text-white mb-4">
+              Industry Partner Portal
+            </h1>
             <p className="text-white/90 text-lg">
-              Register your company and post internship opportunities to find the best talent
+              Register your company and post internship opportunities to find
+              the best talent
             </p>
           </div>
 
           {/* Main Content */}
           <Card className="glass-card border-white/20 shadow-2xl">
             <CardHeader className="text-center">
-              <CardTitle className="text-2xl text-white">Partner with Us</CardTitle>
+              <CardTitle className="text-2xl text-white">
+                Partner with Us
+              </CardTitle>
               <CardDescription className="text-white/80">
                 Join our platform to access top talent from across India
               </CardDescription>
             </CardHeader>
 
             <CardContent className="p-8">
-              <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+              <Tabs
+                value={activeTab}
+                onValueChange={setActiveTab}
+                className="w-full"
+              >
                 <TabsList className="grid w-full grid-cols-3 bg-white/10 border border-white/20">
                   <TabsTrigger
                     value="register"
@@ -132,7 +163,10 @@ export default function IndustryPortal() {
                           />
                         </div>
                         <div className="space-y-2">
-                          <Label htmlFor="registrationNumber" className="text-white">
+                          <Label
+                            htmlFor="registrationNumber"
+                            className="text-white"
+                          >
                             Registration Number
                           </Label>
                           <Input
@@ -151,7 +185,12 @@ export default function IndustryPortal() {
                             </SelectTrigger>
                             <SelectContent>
                               {sectors.map((sector) => (
-                                <SelectItem key={sector} value={sector.toLowerCase().replace(/\s+/g, "-")}>
+                                <SelectItem
+                                  key={sector}
+                                  value={sector
+                                    .toLowerCase()
+                                    .replace(/\s+/g, "-")}
+                                >
                                   {sector}
                                 </SelectItem>
                               ))}
@@ -167,17 +206,28 @@ export default function IndustryPortal() {
                               <SelectValue placeholder="Select company size" />
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value="startup">Startup (1-50 employees)</SelectItem>
-                              <SelectItem value="small">Small (51-200 employees)</SelectItem>
-                              <SelectItem value="medium">Medium (201-1000 employees)</SelectItem>
-                              <SelectItem value="large">Large (1000+ employees)</SelectItem>
+                              <SelectItem value="startup">
+                                Startup (1-50 employees)
+                              </SelectItem>
+                              <SelectItem value="small">
+                                Small (51-200 employees)
+                              </SelectItem>
+                              <SelectItem value="medium">
+                                Medium (201-1000 employees)
+                              </SelectItem>
+                              <SelectItem value="large">
+                                Large (1000+ employees)
+                              </SelectItem>
                             </SelectContent>
                           </Select>
                         </div>
                       </div>
 
                       <div className="space-y-2">
-                        <Label htmlFor="companyDescription" className="text-white">
+                        <Label
+                          htmlFor="companyDescription"
+                          className="text-white"
+                        >
                           Company Description
                         </Label>
                         <Textarea
@@ -203,7 +253,9 @@ export default function IndustryPortal() {
                   {/* Contact Information */}
                   <Card className="glass-card border-white/20">
                     <CardHeader>
-                      <CardTitle className="text-white">Contact Information</CardTitle>
+                      <CardTitle className="text-white">
+                        Contact Information
+                      </CardTitle>
                       <CardDescription className="text-white/80">
                         Primary contact details for internship coordination
                       </CardDescription>
@@ -285,7 +337,9 @@ export default function IndustryPortal() {
                         >
                           <Upload className="w-8 h-8 mb-2" />
                           Company Registration Certificate
-                          <span className="text-xs text-white/70">PDF, JPG, PNG (Max 5MB)</span>
+                          <span className="text-xs text-white/70">
+                            PDF, JPG, PNG (Max 5MB)
+                          </span>
                         </Button>
                         <Button
                           variant="outline"
@@ -293,7 +347,9 @@ export default function IndustryPortal() {
                         >
                           <Upload className="w-8 h-8 mb-2" />
                           GST Certificate
-                          <span className="text-xs text-white/70">PDF, JPG, PNG (Max 5MB)</span>
+                          <span className="text-xs text-white/70">
+                            PDF, JPG, PNG (Max 5MB)
+                          </span>
                         </Button>
                       </div>
                     </CardContent>
@@ -304,9 +360,12 @@ export default function IndustryPortal() {
                 <TabsContent value="internship" className="space-y-6 mt-8">
                   <Card className="glass-card border-white/20">
                     <CardHeader>
-                      <CardTitle className="text-white">Internship Details</CardTitle>
+                      <CardTitle className="text-white">
+                        Internship Details
+                      </CardTitle>
                       <CardDescription className="text-white/80">
-                        Provide comprehensive details about the internship opportunity
+                        Provide comprehensive details about the internship
+                        opportunity
                       </CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
@@ -332,7 +391,10 @@ export default function IndustryPortal() {
                           />
                         </div>
                         <div className="space-y-2">
-                          <Label htmlFor="internshipLocation" className="text-white">
+                          <Label
+                            htmlFor="internshipLocation"
+                            className="text-white"
+                          >
                             Location
                           </Label>
                           <Select>
@@ -341,7 +403,10 @@ export default function IndustryPortal() {
                             </SelectTrigger>
                             <SelectContent>
                               {locations.map((location) => (
-                                <SelectItem key={location} value={location.toLowerCase()}>
+                                <SelectItem
+                                  key={location}
+                                  value={location.toLowerCase()}
+                                >
                                   {location}
                                 </SelectItem>
                               ))}
@@ -405,7 +470,10 @@ export default function IndustryPortal() {
                       </div>
 
                       <div className="space-y-2">
-                        <Label htmlFor="learningOutcomes" className="text-white">
+                        <Label
+                          htmlFor="learningOutcomes"
+                          className="text-white"
+                        >
                           Learning Outcomes
                         </Label>
                         <Textarea
@@ -420,7 +488,9 @@ export default function IndustryPortal() {
                   {/* Internship Capacity */}
                   <Card className="glass-card border-white/20">
                     <CardHeader>
-                      <CardTitle className="text-white">Internship Capacity</CardTitle>
+                      <CardTitle className="text-white">
+                        Internship Capacity
+                      </CardTitle>
                       <CardDescription className="text-white/80">
                         How many interns can you accommodate for this role?
                       </CardDescription>
@@ -434,7 +504,11 @@ export default function IndustryPortal() {
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => setInternshipCapacity(Math.max(1, internshipCapacity - 1))}
+                            onClick={() =>
+                              setInternshipCapacity(
+                                Math.max(1, internshipCapacity - 1),
+                              )
+                            }
                             className="bg-white/10 border-white/30 text-white hover:bg-white/20"
                           >
                             -
@@ -442,7 +516,14 @@ export default function IndustryPortal() {
                           <Input
                             id="capacity"
                             value={internshipCapacity}
-                            onChange={(e) => setInternshipCapacity(Math.max(1, Number.parseInt(e.target.value) || 1))}
+                            onChange={(e) =>
+                              setInternshipCapacity(
+                                Math.max(
+                                  1,
+                                  Number.parseInt(e.target.value) || 1,
+                                ),
+                              )
+                            }
                             className="w-20 text-center bg-white/10 border-white/30 text-white"
                             type="number"
                             min="1"
@@ -450,7 +531,9 @@ export default function IndustryPortal() {
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => setInternshipCapacity(internshipCapacity + 1)}
+                            onClick={() =>
+                              setInternshipCapacity(internshipCapacity + 1)
+                            }
                             className="bg-white/10 border-white/30 text-white hover:bg-white/20"
                           >
                             +
@@ -466,9 +549,12 @@ export default function IndustryPortal() {
                   {/* Required Skills */}
                   <Card className="glass-card border-white/20">
                     <CardHeader>
-                      <CardTitle className="text-white">Required Skills</CardTitle>
+                      <CardTitle className="text-white">
+                        Required Skills
+                      </CardTitle>
                       <CardDescription className="text-white/80">
-                        Specify the technical and soft skills required for this internship
+                        Specify the technical and soft skills required for this
+                        internship
                       </CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
@@ -496,7 +582,10 @@ export default function IndustryPortal() {
                             className="bg-white/20 text-white border-white/30 hover:bg-white/30"
                           >
                             {skill}
-                            <button onClick={() => removeSkill(skill)} className="ml-2 hover:text-red-300">
+                            <button
+                              onClick={() => removeSkill(skill)}
+                              className="ml-2 hover:text-red-300"
+                            >
                               <X className="w-3 h-3" />
                             </button>
                           </Badge>
@@ -508,7 +597,9 @@ export default function IndustryPortal() {
                   {/* Academic Requirements */}
                   <Card className="glass-card border-white/20">
                     <CardHeader>
-                      <CardTitle className="text-white">Academic Requirements</CardTitle>
+                      <CardTitle className="text-white">
+                        Academic Requirements
+                      </CardTitle>
                       <CardDescription className="text-white/80">
                         Specify minimum academic qualifications and preferences
                       </CardDescription>
@@ -525,8 +616,12 @@ export default function IndustryPortal() {
                             </SelectTrigger>
                             <SelectContent>
                               <SelectItem value="diploma">Diploma</SelectItem>
-                              <SelectItem value="bachelor">Bachelor's Degree</SelectItem>
-                              <SelectItem value="master">Master's Degree</SelectItem>
+                              <SelectItem value="bachelor">
+                                Bachelor's Degree
+                              </SelectItem>
+                              <SelectItem value="master">
+                                Master's Degree
+                              </SelectItem>
                               <SelectItem value="phd">PhD</SelectItem>
                             </SelectContent>
                           </Select>
@@ -552,7 +647,10 @@ export default function IndustryPortal() {
                           />
                         </div>
                         <div className="space-y-2">
-                          <Label htmlFor="graduationYear" className="text-white">
+                          <Label
+                            htmlFor="graduationYear"
+                            className="text-white"
+                          >
                             Graduation Year Range
                           </Label>
                           <Select>
@@ -560,9 +658,15 @@ export default function IndustryPortal() {
                               <SelectValue placeholder="Select year range" />
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value="2024-2025">2024-2025</SelectItem>
-                              <SelectItem value="2025-2026">2025-2026</SelectItem>
-                              <SelectItem value="2026-2027">2026-2027</SelectItem>
+                              <SelectItem value="2024-2025">
+                                2024-2025
+                              </SelectItem>
+                              <SelectItem value="2025-2026">
+                                2025-2026
+                              </SelectItem>
+                              <SelectItem value="2026-2027">
+                                2026-2027
+                              </SelectItem>
                               <SelectItem value="any">Any Year</SelectItem>
                             </SelectContent>
                           </Select>
@@ -574,41 +678,71 @@ export default function IndustryPortal() {
                   {/* Additional Preferences */}
                   <Card className="glass-card border-white/20">
                     <CardHeader>
-                      <CardTitle className="text-white">Additional Preferences</CardTitle>
+                      <CardTitle className="text-white">
+                        Additional Preferences
+                      </CardTitle>
                       <CardDescription className="text-white/80">
-                        Any additional requirements or preferences for candidates
+                        Any additional requirements or preferences for
+                        candidates
                       </CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
                       <div className="space-y-3">
                         <div className="flex items-center space-x-2">
-                          <Checkbox id="freshGraduates" className="border-white/30" />
-                          <Label htmlFor="freshGraduates" className="text-white">
+                          <Checkbox
+                            id="freshGraduates"
+                            className="border-white/30"
+                          />
+                          <Label
+                            htmlFor="freshGraduates"
+                            className="text-white"
+                          >
                             Prefer fresh graduates/final year students
                           </Label>
                         </div>
                         <div className="flex items-center space-x-2">
-                          <Checkbox id="priorExperience" className="border-white/30" />
-                          <Label htmlFor="priorExperience" className="text-white">
+                          <Checkbox
+                            id="priorExperience"
+                            className="border-white/30"
+                          />
+                          <Label
+                            htmlFor="priorExperience"
+                            className="text-white"
+                          >
                             Prior internship experience preferred
                           </Label>
                         </div>
                         <div className="flex items-center space-x-2">
-                          <Checkbox id="diversityFocus" className="border-white/30" />
-                          <Label htmlFor="diversityFocus" className="text-white">
+                          <Checkbox
+                            id="diversityFocus"
+                            className="border-white/30"
+                          />
+                          <Label
+                            htmlFor="diversityFocus"
+                            className="text-white"
+                          >
                             Encourage applications from underrepresented groups
                           </Label>
                         </div>
                         <div className="flex items-center space-x-2">
-                          <Checkbox id="ruralCandidates" className="border-white/30" />
-                          <Label htmlFor="ruralCandidates" className="text-white">
-                            Welcome candidates from rural/aspirational districts
+                          <Checkbox
+                            id="ruralCandidates"
+                            className="border-white/30"
+                          />
+                          <Label
+                            htmlFor="ruralCandidates"
+                            className="text-white"
+                          >
+                            Welcome candidates from rural districts
                           </Label>
                         </div>
                       </div>
 
                       <div className="space-y-2">
-                        <Label htmlFor="additionalRequirements" className="text-white">
+                        <Label
+                          htmlFor="additionalRequirements"
+                          className="text-white"
+                        >
                           Additional Requirements or Notes
                         </Label>
                         <Textarea
@@ -627,9 +761,9 @@ export default function IndustryPortal() {
                 <Button
                   variant="outline"
                   onClick={() => {
-                    const tabs = ["register", "internship", "requirements"]
-                    const currentIndex = tabs.indexOf(activeTab)
-                    if (currentIndex > 0) setActiveTab(tabs[currentIndex - 1])
+                    const tabs = ["register", "internship", "requirements"];
+                    const currentIndex = tabs.indexOf(activeTab);
+                    if (currentIndex > 0) setActiveTab(tabs[currentIndex - 1]);
                   }}
                   disabled={activeTab === "register"}
                   className="bg-white/10 border-white/30 text-white hover:bg-white/20 disabled:opacity-50"
@@ -638,13 +772,16 @@ export default function IndustryPortal() {
                 </Button>
 
                 {activeTab === "requirements" ? (
-                  <Button className="bg-white text-primary hover:bg-white/90 px-8">Post Internship</Button>
+                  <Button className="bg-white text-primary hover:bg-white/90 px-8">
+                    Post Internship
+                  </Button>
                 ) : (
                   <Button
                     onClick={() => {
-                      const tabs = ["register", "internship", "requirements"]
-                      const currentIndex = tabs.indexOf(activeTab)
-                      if (currentIndex < tabs.length - 1) setActiveTab(tabs[currentIndex + 1])
+                      const tabs = ["register", "internship", "requirements"];
+                      const currentIndex = tabs.indexOf(activeTab);
+                      if (currentIndex < tabs.length - 1)
+                        setActiveTab(tabs[currentIndex + 1]);
                     }}
                     className="bg-white text-primary hover:bg-white/90"
                   >
@@ -657,5 +794,5 @@ export default function IndustryPortal() {
         </div>
       </div>
     </div>
-  )
+  );
 }

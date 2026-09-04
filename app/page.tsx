@@ -1,52 +1,73 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { GraduationCap, Building2, ArrowRight, Users, Target, Zap } from "lucide-react"
-import Link from "next/link"
+import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  GraduationCap,
+  Building2,
+  ArrowRight,
+  Users,
+  Target,
+  Zap,
+} from "lucide-react";
+import Link from "next/link";
 
 export default function HomePage() {
-  const [hoveredCard, setHoveredCard] = useState<string | null>(null)
+  const [hoveredCard, setHoveredCard] = useState<string | null>(null);
 
   useEffect(() => {
-    document.body.className = document.body.className.replace(/default-page-body|home-page-body/g, "").trim()
-    document.body.classList.add("home-page-body")
+    document.body.className = document.body.className
+      .replace(/default-page-body|home-page-body/g, "")
+      .trim();
+    document.body.classList.add("home-page-body");
 
     return () => {
       // Clean up body class when component unmounts
-      document.body.classList.remove("home-page-body")
-      document.body.classList.add("default-page-body")
-    }
-  }, [])
+      document.body.classList.remove("home-page-body");
+      document.body.classList.add("default-page-body");
+    };
+  }, []);
 
   const portals = [
     {
       id: "student",
       title: "Student Portal",
-      description: "Register, upload resume, and get matched with perfect internships",
+      description:
+        "Register, upload resume, and get matched with perfect internships",
       icon: GraduationCap,
       href: "/student/login",
       gradient: "gradient-bg",
-      features: ["Resume Auto-fill", "ABC ID Integration", "Smart Matching"],
+      features: ["Resume Auto-fill", "Smart Matching"],
     },
     {
       id: "industry",
       title: "Industry Portal",
-      description: "Post internships and find the best candidates for your company",
+      description:
+        "Post internships and find the best candidates for your company",
       icon: Building2,
       href: "/industry/login",
       gradient: "gradient-bg-secondary",
-      features: ["Candidate Matching", "Analytics Dashboard", "Bulk Operations"],
+      features: [
+        "Candidate Matching",
+        "Analytics Dashboard",
+        "Bulk Operations",
+      ],
     },
-  ]
+  ];
 
   const stats = [
     { label: "Students Registered", value: "50,000+", icon: Users },
     { label: "Companies Partnered", value: "2,500+", icon: Building2 },
     { label: "Successful Matches", value: "45,000+", icon: Target },
     { label: "Match Accuracy", value: "94%", icon: Zap },
-  ]
+  ];
 
   return (
     <div className="min-h-screen">
@@ -79,8 +100,9 @@ export default function HomePage() {
 
           <div className="mb-6 sm:mb-10">
             <p className="text-sm sm:text-lg md:text-xl text-white max-w-3xl mx-auto text-pretty px-4">
-              Connecting talented students with industry opportunities through intelligent matching, resume auto-fill,
-              and seamless integration with Academic Bank of Credits.
+              Connecting talented students with industry opportunities through
+              intelligent matching, resume auto-fill, and seamless integration
+              with Academic Bank of Credits.
             </p>
           </div>
 
@@ -93,7 +115,9 @@ export default function HomePage() {
               >
                 <CardContent className="p-2 sm:p-4">
                   <stat.icon className="w-4 h-4 sm:w-6 sm:h-6 text-white mx-auto mb-1 group-hover:scale-110 transition-transform duration-300" />
-                  <div className="text-sm sm:text-xl font-bold text-white mb-1">{stat.value}</div>
+                  <div className="text-sm sm:text-xl font-bold text-white mb-1">
+                    {stat.value}
+                  </div>
                   <div className="text-xs text-white">{stat.label}</div>
                 </CardContent>
               </Card>
@@ -110,7 +134,8 @@ export default function HomePage() {
               Choose Your Portal
             </h2>
             <p className="text-sm sm:text-lg text-muted-foreground max-w-2xl mx-auto px-4">
-              Access the platform through your dedicated portal with features tailored to your needs
+              Access the platform through your dedicated portal with features
+              tailored to your needs
             </p>
           </div>
 
@@ -127,7 +152,9 @@ export default function HomePage() {
                   <div className="mx-auto mb-3 p-2 sm:p-3 bg-white/20 rounded-2xl w-fit group-hover:bg-white/30 transition-all duration-300">
                     <portal.icon className="w-6 h-6 sm:w-10 sm:h-10 text-white" />
                   </div>
-                  <CardTitle className="text-lg sm:text-xl font-bold text-white mb-2">{portal.title}</CardTitle>
+                  <CardTitle className="text-lg sm:text-xl font-bold text-white mb-2">
+                    {portal.title}
+                  </CardTitle>
                   <CardDescription className="text-white/90 text-xs sm:text-sm px-2">
                     {portal.description}
                   </CardDescription>
@@ -172,8 +199,8 @@ export default function HomePage() {
             Powered by Advanced Technology
           </h2>
           <p className="text-sm sm:text-lg text-muted-foreground mb-6 sm:mb-10 max-w-3xl mx-auto px-4">
-            Our platform leverages cutting-edge AI and seamless integrations to provide the best internship matching
-            experience
+            Our platform leverages cutting-edge AI and seamless integrations to
+            provide the best internship matching experience
           </p>
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
@@ -185,38 +212,44 @@ export default function HomePage() {
                 icon: "📄",
               },
               {
-                title: "ABC ID Integration",
-                description: "Seamlessly connect with Academic Bank of Credits to import your academic achievements",
-                icon: "🏛️",
-              },
-              {
                 title: "Smart Matching",
-                description: "Our AI engine considers skills, preferences, and qualifications for perfect matches",
+                description:
+                  "Our AI engine considers skills, preferences, and qualifications for perfect matches",
                 icon: "🤖",
               },
               {
                 title: "Real-time Analytics",
-                description: "Track application status, match scores, and platform statistics in real-time",
+                description:
+                  "Track application status, match scores, and platform statistics in real-time",
                 icon: "📊",
               },
               {
                 title: "Secure & Compliant",
-                description: "Enterprise-grade security with full compliance to data protection regulations",
+                description:
+                  "Enterprise-grade security with full compliance to data protection regulations",
                 icon: "🔒",
               },
               {
                 title: "Mobile Responsive",
-                description: "Access the platform seamlessly across all devices with our responsive design",
+                description:
+                  "Access the platform seamlessly across all devices with our responsive design",
                 icon: "📱",
               },
             ].map((feature, index) => (
-              <Card key={feature.title} className="glass-card-white hover:shadow-xl transition-all duration-300 group">
+              <Card
+                key={feature.title}
+                className="glass-card-white hover:shadow-xl transition-all duration-300 group"
+              >
                 <CardContent className="p-4 sm:p-6 text-center">
                   <div className="text-2xl sm:text-3xl mb-2 sm:mb-3 group-hover:scale-110 transition-transform duration-300">
                     {feature.icon}
                   </div>
-                  <h3 className="text-sm sm:text-lg font-semibold text-foreground mb-1 sm:mb-2">{feature.title}</h3>
-                  <p className="text-muted-foreground text-xs sm:text-sm">{feature.description}</p>
+                  <h3 className="text-sm sm:text-lg font-semibold text-foreground mb-1 sm:mb-2">
+                    {feature.title}
+                  </h3>
+                  <p className="text-muted-foreground text-xs sm:text-sm">
+                    {feature.description}
+                  </p>
                 </CardContent>
               </Card>
             ))}
@@ -232,33 +265,48 @@ export default function HomePage() {
                 <div className="w-6 h-6 sm:w-8 sm:h-8 bg-white rounded-lg flex items-center justify-center">
                   <GraduationCap className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
                 </div>
-                <span className="font-bold text-sm sm:text-lg">InternMatch</span>
+                <span className="font-bold text-sm sm:text-lg">InternSync</span>
               </div>
               <p className="text-gray-300 text-xs sm:text-sm">
-                AI-powered platform for intelligent internship allocation and matching.
+                AI-powered platform for intelligent internship allocation and
+                matching.
               </p>
             </div>
 
             <div>
-              <h4 className="font-semibold mb-3 sm:mb-4 text-sm sm:text-base">Quick Links</h4>
+              <h4 className="font-semibold mb-3 sm:mb-4 text-sm sm:text-base">
+                Quick Links
+              </h4>
               <ul className="space-y-2 text-xs sm:text-sm">
                 <li>
-                  <Link href="/student/login" className="text-gray-300 hover:text-white transition-colors">
+                  <Link
+                    href="/student/login"
+                    className="text-gray-300 hover:text-white transition-colors"
+                  >
                     Student Portal
                   </Link>
                 </li>
                 <li>
-                  <Link href="/industry/login" className="text-gray-300 hover:text-white transition-colors">
+                  <Link
+                    href="/industry/login"
+                    className="text-gray-300 hover:text-white transition-colors"
+                  >
                     Industry Portal
                   </Link>
                 </li>
                 <li>
-                  <Link href="/about" className="text-gray-300 hover:text-white transition-colors">
+                  <Link
+                    href="/about"
+                    className="text-gray-300 hover:text-white transition-colors"
+                  >
                     About Us
                   </Link>
                 </li>
                 <li>
-                  <Link href="/contact" className="text-gray-300 hover:text-white transition-colors">
+                  <Link
+                    href="/contact"
+                    className="text-gray-300 hover:text-white transition-colors"
+                  >
                     Contact
                   </Link>
                 </li>
@@ -266,25 +314,39 @@ export default function HomePage() {
             </div>
 
             <div>
-              <h4 className="font-semibold mb-3 sm:mb-4 text-sm sm:text-base">Support</h4>
+              <h4 className="font-semibold mb-3 sm:mb-4 text-sm sm:text-base">
+                Support
+              </h4>
               <ul className="space-y-2 text-xs sm:text-sm">
                 <li>
-                  <Link href="/help" className="text-gray-300 hover:text-white transition-colors">
+                  <Link
+                    href="/help"
+                    className="text-gray-300 hover:text-white transition-colors"
+                  >
                     Help Center
                   </Link>
                 </li>
                 <li>
-                  <Link href="/privacy" className="text-gray-300 hover:text-white transition-colors">
+                  <Link
+                    href="/privacy"
+                    className="text-gray-300 hover:text-white transition-colors"
+                  >
                     Privacy Policy
                   </Link>
                 </li>
                 <li>
-                  <Link href="/terms" className="text-gray-300 hover:text-white transition-colors">
+                  <Link
+                    href="/terms"
+                    className="text-gray-300 hover:text-white transition-colors"
+                  >
                     Terms of Service
                   </Link>
                 </li>
                 <li>
-                  <Link href="/faq" className="text-gray-300 hover:text-white transition-colors">
+                  <Link
+                    href="/faq"
+                    className="text-gray-300 hover:text-white transition-colors"
+                  >
                     FAQ
                   </Link>
                 </li>
@@ -292,10 +354,12 @@ export default function HomePage() {
             </div>
 
             <div>
-              <h4 className="font-semibold mb-3 sm:mb-4 text-sm sm:text-base">Contact Info</h4>
+              <h4 className="font-semibold mb-3 sm:mb-4 text-sm sm:text-base">
+                Contact Info
+              </h4>
               <div className="space-y-2 text-xs sm:text-sm text-gray-300">
-                <p>InternMatch Platform</p>
-                <p>Email: support@internmatch.com</p>
+                <p>InternSync Platform</p>
+                <p>Email: support@internsync.com</p>
                 <p>Helpline: 1800-XXX-XXXX</p>
                 <p>Available 24/7</p>
               </div>
@@ -303,10 +367,10 @@ export default function HomePage() {
           </div>
 
           <div className="border-t border-gray-700 mt-6 sm:mt-8 pt-6 sm:pt-8 text-center text-xs sm:text-sm text-gray-300">
-            <p>&copy; 2024 InternMatch Platform. All rights reserved.</p>
+            <p>&copy; 2024 InternSync Platform. All rights reserved.</p>
           </div>
         </div>
       </footer>
     </div>
-  )
+  );
 }

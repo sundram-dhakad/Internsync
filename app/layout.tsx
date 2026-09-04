@@ -1,22 +1,23 @@
-import type React from "react"
-import type { Metadata } from "next"
-import { GeistSans } from "geist/font/sans"
-import { GeistMono } from "geist/font/mono"
-import { Analytics } from "@vercel/analytics/next"
-import { Navigation } from "@/components/navigation"
-import { Suspense } from "react"
-import "./globals.css"
+import type React from "react";
+import type { Metadata } from "next";
+import { GeistSans } from "geist/font/sans";
+import { GeistMono } from "geist/font/mono";
+import { Analytics } from "@vercel/analytics/next";
+import { Navigation } from "@/components/navigation";
+import { Suspense } from "react";
+import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "InternMatch - AI-Powered Internship Platform",
-  description: "AI-powered internship matching platform connecting students with industry opportunities",
+  title: "InternSync - AI-Powered Internship Platform",
+  description:
+    "AI-powered internship matching platform connecting students with industry opportunities",
   generator: "v0.app",
-}
+};
 
 export default function RootLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode
+  children: React.ReactNode;
 }>) {
   return (
     <html lang="en">
@@ -28,5 +29,5 @@ export default function RootLayout({
         <Analytics />
       </body>
     </html>
-  )
+  );
 }
