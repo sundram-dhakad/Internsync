@@ -40,15 +40,16 @@ export default function IndustryPortal() {
       return
     }
 
+    const { data: sessionData } = await supabase.auth.getSession()
     const companyName = getInputValue("companyName")
-    const contactEmail = getInputValue("contactEmail")
+    const contactEmail = getInputValue("contactEmail") || sessionData.session?.user.email || ""
     const password = getInputValue("companyPassword")
     const confirmPassword = getInputValue("confirmCompanyPassword")
     const missingFields = [
       !companyName && "Company Name",
       !contactEmail && "Contact Email",
-      !password && "Account Password",
-      !confirmPassword && "Confirm Password",
+      !sessionData.session && !password && "Account Password",
+      !sessionData.session && !confirmPassword && "Confirm Password",
       !companySector && "Industry Sector",
     ].filter(Boolean) as string[]
 
@@ -57,35 +58,39 @@ export default function IndustryPortal() {
       return
     }
 
-    if (password !== confirmPassword) {
+    if (!sessionData.session && password !== confirmPassword) {
       setRegistrationStatus("Passwords do not match.")
       return
     }
 
     setIsSubmitting(true)
-    const { data, error } = await supabase.auth.signUp({
-      email: contactEmail,
-      password,
-      options: { data: { role: "industry", full_name: companyName } },
-    })
-    if (error || !data.user) {
-      setIsSubmitting(false)
-      setRegistrationStatus(error?.message ?? "Unable to create the company account.")
-      return
-    }
-    if (!data.session) {
-      setIsSubmitting(false)
-      setRegistrationStatus("Account created. Check your email to verify your account, then sign in and register the company.")
-      return
+    let user = sessionData.session?.user
+    if (!user) {
+      const { data, error } = await supabase.auth.signUp({
+        email: contactEmail,
+        password,
+        options: { data: { role: "industry", full_name: companyName } },
+      })
+      if (error || !data.user) {
+        setIsSubmitting(false)
+        setRegistrationStatus(error?.message ?? "Unable to create the company account.")
+        return
+      }
+      if (!data.session) {
+        setIsSubmitting(false)
+        setRegistrationStatus("Account created. Check your email to verify your account, then sign in and register the company.")
+        return
+      }
+      user = data.user
     }
 
     const { error: profileError } = await supabase.from("profiles").upsert({
-      id: data.user.id,
+      id: user.id,
       role: "industry",
       full_name: companyName,
     })
     const { error: companyError } = await supabase.from("companies").upsert({
-      id: data.user.id,
+      id: user.id,
       name: companyName,
       registration_number: getInputValue("registrationNumber") || null,
       sector: companySector,
