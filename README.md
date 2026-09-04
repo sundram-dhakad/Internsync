@@ -1,6 +1,6 @@
 # InternSync
 
-InternSync is a Next.js platform for connecting students with internship opportunities and helping organizations manage internship listings and candidates.
+InternSync is a Next.js platform for helping students connect with internship opportunities and helping organizations manage internship listings and candidates.
 
 ## Features
 
