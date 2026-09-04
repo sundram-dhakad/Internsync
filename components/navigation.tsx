@@ -50,16 +50,17 @@ export function Navigation() {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-4">
-            {showPortalLinks && navItems.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className="flex items-center space-x-1 text-white hover:text-blue-200 transition-colors duration-200 text-xs"
-              >
-                <item.icon className="w-3 h-3" />
-                <span>{item.label}</span>
-              </Link>
-            ))}
+            {showPortalLinks &&
+              navItems.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className="flex items-center space-x-1 text-white hover:text-blue-200 transition-colors duration-200 text-xs"
+                >
+                  <item.icon className="w-3 h-3" />
+                  <span>{item.label}</span>
+                </Link>
+              ))}
             {isLoggedIn && (
               <>
                 <Link
@@ -100,17 +101,18 @@ export function Navigation() {
         {isOpen && (showPortalLinks || isLoggedIn) && (
           <div className="md:hidden bg-black/40 backdrop-blur-md rounded-lg mt-1 p-2 border border-white/20">
             <div className="space-y-2">
-              {showPortalLinks && navItems.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className="flex items-center space-x-2 text-white hover:text-blue-200 transition-colors duration-200 text-xs"
-                  onClick={() => setIsOpen(false)}
-                >
-                  <item.icon className="w-3 h-3" />
-                  <span>{item.label}</span>
-                </Link>
-              ))}
+              {showPortalLinks &&
+                navItems.map((item) => (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className="flex items-center space-x-2 text-white hover:text-blue-200 transition-colors duration-200 text-xs"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    <item.icon className="w-3 h-3" />
+                    <span>{item.label}</span>
+                  </Link>
+                ))}
               {isLoggedIn && (
                 <>
                   <Link

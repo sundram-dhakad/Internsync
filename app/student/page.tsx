@@ -83,8 +83,16 @@ export default function StudentPortal() {
         return;
       }
       const [{ data: profile }, { data: education }] = await Promise.all([
-        client.from("student_profiles").select("*").eq("id", user.id).maybeSingle(),
-        client.from("education").select("university, degree, gpa, graduation_year").eq("student_id", user.id).order("id"),
+        client
+          .from("student_profiles")
+          .select("*")
+          .eq("id", user.id)
+          .maybeSingle(),
+        client
+          .from("education")
+          .select("university, degree, gpa, graduation_year")
+          .eq("student_id", user.id)
+          .order("id"),
       ]);
       if (profile) {
         setFormData((previous) => ({
@@ -103,15 +111,20 @@ export default function StudentPortal() {
           additionalInfo: profile.additional_info ?? "",
         }));
         setSkills(profile.skills ?? []);
-        setPreferences({ locations: profile.preferred_locations ?? [], sectors: profile.preferred_sectors ?? [] });
+        setPreferences({
+          locations: profile.preferred_locations ?? [],
+          sectors: profile.preferred_sectors ?? [],
+        });
       }
       if (education?.length) {
-        setCourses(education.map((course) => ({
-          university: course.university ?? "",
-          degree: course.degree ?? "",
-          gpa: course.gpa ?? "",
-          graduationYear: course.graduation_year?.toString() ?? "",
-        })));
+        setCourses(
+          education.map((course) => ({
+            university: course.university ?? "",
+            degree: course.degree ?? "",
+            gpa: course.gpa ?? "",
+            graduationYear: course.graduation_year?.toString() ?? "",
+          })),
+        );
       }
     };
     void loadProfile();
@@ -226,7 +239,9 @@ export default function StudentPortal() {
       !isEditMode && !formData.confirmPassword && "Confirm Password",
     ].filter(Boolean) as string[];
     if (missingFields.length) {
-      setRegistrationStatus(`Required fields missing: ${missingFields.join(", ")}.`);
+      setRegistrationStatus(
+        `Required fields missing: ${missingFields.join(", ")}.`,
+      );
       setActiveTab("register");
       return;
     }
@@ -251,41 +266,58 @@ export default function StudentPortal() {
         role: "student",
         full_name: `${formData.firstName} ${formData.lastName}`,
       });
-      const { error: studentError } = await supabase.from("student_profiles").upsert({
-        id: user.id,
-        first_name: formData.firstName,
-        last_name: formData.lastName,
-        phone: formData.phone || null,
-        date_of_birth: formData.dateOfBirth || null,
-        gender: formData.gender || null,
-        address: formData.address || null,
-        city: formData.city || null,
-        state: formData.state || null,
-        pincode: formData.pincode || null,
-        previous_participation: formData.previousParticipation,
-        additional_info: formData.additionalInfo || null,
-        skills,
-        preferred_locations: preferences.locations,
-        preferred_sectors: preferences.sectors,
-      });
+      const { error: studentError } = await supabase
+        .from("student_profiles")
+        .upsert({
+          id: user.id,
+          first_name: formData.firstName,
+          last_name: formData.lastName,
+          phone: formData.phone || null,
+          date_of_birth: formData.dateOfBirth || null,
+          gender: formData.gender || null,
+          address: formData.address || null,
+          city: formData.city || null,
+          state: formData.state || null,
+          pincode: formData.pincode || null,
+          previous_participation: formData.previousParticipation,
+          additional_info: formData.additionalInfo || null,
+          skills,
+          preferred_locations: preferences.locations,
+          preferred_sectors: preferences.sectors,
+        });
       if (profileError || studentError) {
         setIsRegistering(false);
-        setRegistrationStatus(profileError?.message ?? studentError?.message ?? "Unable to save your profile.");
+        setRegistrationStatus(
+          profileError?.message ??
+            studentError?.message ??
+            "Unable to save your profile.",
+        );
         return;
       }
-      const { error: educationDeleteError } = await supabase.from("education").delete().eq("student_id", user.id);
-      const educationRows = courses.filter((course) => course.university && course.degree).map((course) => ({
-        student_id: user.id,
-        university: course.university,
-        degree: course.degree,
-        gpa: course.gpa || null,
-        graduation_year: course.graduationYear ? Number(course.graduationYear) : null,
-      }));
+      const { error: educationDeleteError } = await supabase
+        .from("education")
+        .delete()
+        .eq("student_id", user.id);
+      const educationRows = courses
+        .filter((course) => course.university && course.degree)
+        .map((course) => ({
+          student_id: user.id,
+          university: course.university,
+          degree: course.degree,
+          gpa: course.gpa || null,
+          graduation_year: course.graduationYear
+            ? Number(course.graduationYear)
+            : null,
+        }));
       const { error: educationInsertError } = educationRows.length
         ? await supabase.from("education").insert(educationRows)
         : { error: null };
       setIsRegistering(false);
-      const editError = profileError ?? studentError ?? educationDeleteError ?? educationInsertError;
+      const editError =
+        profileError ??
+        studentError ??
+        educationDeleteError ??
+        educationInsertError;
       if (editError) {
         setRegistrationStatus(editError.message);
         return;
@@ -350,7 +382,11 @@ export default function StudentPortal() {
 
     if (profileError || studentError) {
       setIsRegistering(false);
-      setRegistrationStatus(profileError?.message ?? studentError?.message ?? "Unable to save your profile.");
+      setRegistrationStatus(
+        profileError?.message ??
+          studentError?.message ??
+          "Unable to save your profile.",
+      );
       return;
     }
 
@@ -549,8 +585,12 @@ export default function StudentPortal() {
                           />
                         </div>
                         <div className="space-y-2">
-                          <Label htmlFor="confirmPassword" className="text-white">
-                            Confirm Password <span className="text-red-300">*</span>
+                          <Label
+                            htmlFor="confirmPassword"
+                            className="text-white"
+                          >
+                            Confirm Password{" "}
+                            <span className="text-red-300">*</span>
                           </Label>
                           <Input
                             id="confirmPassword"

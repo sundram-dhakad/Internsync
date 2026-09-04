@@ -5,7 +5,6 @@ div[data-state="active"]:has(+ div[data-state="active"]) {
   display: none;
 }
 
-
 @custom-variant dark (&:is(.dark *));
 
 :root {
@@ -137,7 +136,13 @@ div[data-state="active"]:has(+ div[data-state="active"]) {
 
   /* Special class for home page to override body background */
   .home-page-body {
-    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 30%, #2563eb 70%, rgba(255, 255, 255, 0.1) 100%) !important;
+    background: linear-gradient(
+      135deg,
+      #4f46e5 0%,
+      #7c3aed 30%,
+      #2563eb 70%,
+      rgba(255, 255, 255, 0.1) 100%
+    ) !important;
     min-height: 100vh;
   }
 
@@ -151,11 +156,23 @@ div[data-state="active"]:has(+ div[data-state="active"]) {
 @layer utilities {
   /* Adjusted gradients to add some white but maintain text contrast */
   .gradient-bg {
-    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 30%, #2563eb 70%, rgba(255, 255, 255, 0.1) 100%);
+    background: linear-gradient(
+      135deg,
+      #4f46e5 0%,
+      #7c3aed 30%,
+      #2563eb 70%,
+      rgba(255, 255, 255, 0.1) 100%
+    );
   }
 
   .gradient-bg-secondary {
-    background: linear-gradient(135deg, #1f2937 0%, #374151 30%, #111827 70%, rgba(255, 255, 255, 0.05) 100%);
+    background: linear-gradient(
+      135deg,
+      #1f2937 0%,
+      #374151 30%,
+      #111827 70%,
+      rgba(255, 255, 255, 0.05) 100%
+    );
   }
 
   .gradient-bg-admin {
@@ -205,14 +222,18 @@ div[data-state="active"]:has(+ div[data-state="active"]) {
     overflow: hidden;
     border-right: 3px solid rgba(255, 255, 255, 0.75);
     white-space: nowrap;
-    animation: typing 3.5s steps(40, end), blink-caret 0.75s step-end infinite;
+    animation:
+      typing 3.5s steps(40, end),
+      blink-caret 0.75s step-end infinite;
   }
 
   .typing-restart {
     overflow: hidden;
     border-right: 3px solid rgba(255, 255, 255, 0.75);
     white-space: nowrap;
-    animation: typing 3.5s steps(40, end) infinite, blink-caret 0.75s step-end infinite;
+    animation:
+      typing 3.5s steps(40, end) infinite,
+      blink-caret 0.75s step-end infinite;
     animation-delay: 0s, 0s;
     animation-iteration-count: infinite, infinite;
   }
@@ -264,9 +285,15 @@ div[data-state="active"]:has(+ div[data-state="active"]) {
 
 @keyframes glow-pulse {
   from {
-    text-shadow: 0 0 10px rgba(255, 255, 255, 0.5), 0 0 20px rgba(255, 255, 255, 0.3), 0 0 30px rgba(255, 255, 255, 0.2);
+    text-shadow:
+      0 0 10px rgba(255, 255, 255, 0.5),
+      0 0 20px rgba(255, 255, 255, 0.3),
+      0 0 30px rgba(255, 255, 255, 0.2);
   }
   to {
-    text-shadow: 0 0 15px rgba(255, 255, 255, 0.8), 0 0 25px rgba(255, 255, 255, 0.5), 0 0 35px rgba(255, 255, 255, 0.3);
+    text-shadow:
+      0 0 15px rgba(255, 255, 255, 0.8),
+      0 0 25px rgba(255, 255, 255, 0.5),
+      0 0 35px rgba(255, 255, 255, 0.3);
   }
 }
