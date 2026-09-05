@@ -2,6 +2,9 @@
 
 InternSync is a Next.js platform for helping students connect with internship opportunities and helping organizations manage internship listings and candidates.
 
+# Live Link
+[https://internsync-master.vercel.app](https://internsync-master.vercel.app/)
+
 ## Features
 
 - Student and industry portals
@@ -18,6 +21,9 @@ InternSync is a Next.js platform for helping students connect with internship op
 - Tailwind CSS
 - Radix UI components
 - Lucide icons
+- Supabase
+- Postgresql
+- Gemini
 
 ## Getting Started
 
